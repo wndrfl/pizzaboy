@@ -17,6 +17,7 @@ use Dominos\User\User;
 
 class Dominos
 {
+	// API endpoints
 	static
 		$ENDPOINT_ROOT 	= 'https://order.dominos.com/',
 		$ENDPOINTS		= array(
@@ -287,6 +288,14 @@ class Dominos
 		return $request;
 	}
 	
+	/**
+	 * Finds the store branch closest to the address.
+	 * 
+	 * Runs a search of store branches around the provided
+	 * address and returns the first on the list (assumed the closest)
+	 * 
+	 * @return Object Returns a Store object or false if none found
+	 **/
 	public function closestStore($street,$city,$state,$postal)
 	{
 		$stores = $this->findStores($street,$city,$state,$postal);
@@ -298,24 +307,36 @@ class Dominos
 		return false;
 	}
 	
+	/**
+	 * Create a new Address object.
+	 **/
 	public function createAddress()
 	{
 		$address = new Address();
 		return $address;
 	}
 	
+	/**
+	 * Create a new CreditCard object.
+	 **/
 	public function createCreditCard()
 	{
 		$creditCard = new CreditCard();
 		return $creditCard;
 	}
 	
+	/**
+	 * Create a new Pizza object.
+	 **/
 	public function createPizza()
 	{
 		$pizza = new Pizza();
 		return $pizza;
 	}
 	
+	/**
+	 * Create a new Order object.
+	 **/
 	public function createOrder(array $pizzas=array())
 	{
 		$order = new Order();
@@ -327,12 +348,25 @@ class Dominos
 		return $order;
 	}
 	
+	/**
+	 * Create a new User object.
+	 **/
 	public function createUser()
 	{
 		$user = new User();
 		return $user;
 	}
 	
+	/**
+	 * Find stores around a provided address.
+	 * 
+	 * Use Dominos API to search for stores within range
+	 * of the provided address.
+	 * 
+	 * @todo Use Address object instead of individual arguments.
+	 * 
+	 * @return Array An array of Store objects
+	 **/
 	public function findStores($street,$city,$state,$postal)
 	{
 		$endpoint = $this->_buildEndpoint('STORE_LOCATOR');
@@ -341,6 +375,8 @@ class Dominos
 			'c' => strtoupper($city.', '.$state.' '.$postal),
 			's' => strtoupper($street)
 		));
+		
+		$stores = array();
 		
 		if($response['SUCCESS']) {
 			$responseBody = json_decode($response['RESPONSE'],true);
@@ -358,14 +394,20 @@ class Dominos
 				
 				$stores[] = $store;
 			}
-			
-			return $stores;
-			
-		}else{
-			
 		}
+		
+		return $stores;
 	}
 	
+	/**
+	 * Find a store by its id.
+	 * 
+	 * Use Dominos API to find a store by its
+	 * Dominos store id.
+	 * 
+	 * @return Object A Store object
+	 * @return Boolean
+	 **/
 	public function getStore($id)
 	{
 		$endpoint = $this->_buildEndpoint('STORE_PROFILE',intval($id));
@@ -388,6 +430,14 @@ class Dominos
 		return false;
 	}
 	
+	/**
+	 * Log in to a Dominos account.
+	 * 
+	 * Authenticate a user by their Dominos
+	 * credentials (user and password).
+	 * 
+	 * @todo Return and throw exceptions
+	 **/
 	public function login($user,$pass)
 	{
 		$endpoint = $this->_buildEndpoint('LOGIN');
@@ -403,6 +453,18 @@ class Dominos
 		}
 	}
 	
+	/**
+	 * Calculate an estimated price for an order.
+	 * 
+	 * Send the order to Dominos to determine a price
+	 * based on delivery address, branch, and products in 
+	 * the order.
+	 * 
+	 * @todo Throw exception when unsuccessful.
+	 * 
+	 * @return Object An Order object (with the price added to it)
+	 * @return Boolen False when unsuccessful
+	 **/
 	public function priceOrder(Order $order)
 	{
 		$request = $this->_createBasicOrderRequest($order);
@@ -422,6 +484,18 @@ class Dominos
 		return false;
 	}
 	
+	/**
+	 * Submit an order for payment / delivery.
+	 * 
+	 * Send an order to Dominos, including credit card
+	 * information, for purchase. If successful, the order will
+	 * be placed, the credit card will be charge, and the delivery
+	 * process will start.
+	 * 
+	 * @todo Throw exceptions when unsuccessful
+	 * 
+	 * @return Boolean True or false
+	 **/
 	public function placeOrder(Order $order)
 	{
 		$request = $this->_createBasicOrderRequest($order);
@@ -439,8 +513,20 @@ class Dominos
 			$responseBody = json_decode($response['RESPONSE'],true);
 			return ($responseBody['Status'] == 1) ? true : false;
 		}
+		
+		return false;
 	}
 
+	/**
+	 * Validate an order against the Dominos API.
+	 * 
+	 * Use the Dominos API to determine whether or not
+	 * a current order request is valid.
+	 * 
+	 * @todo Throw exceptions when invalid
+	 * 
+	 * @return Boolean True or false
+	 **/
 	public function validateOrder(Order $order)
 	{
 		$request = $this->_createBasicOrderRequest($order);

@@ -1,31 +1,22 @@
 <?php
 namespace Dominos\Order;
 
+use Dominos\PaymentOption\PaymentOption;
 use Dominos\Product\Pizza;
 use Dominos\Store\Store;
 use Dominos\User\Address;
 use Dominos\User\User;
-/**
- * 	
-use PizzaParty\Application\Entity\Order\OrderPreset;
-use PizzaParty\Application\Entity\PaymentOption\PaymentOption;
-**/
 
 class Order
 {
-	private	$_address;
-	
-	private $_amount;
-	
-	private $_id;
-	
-	private $_paymentOption;
-	
-	private $_products = array();
-	
-	private $_store;
-	
-	private $_user;
+	private	
+		$_address,
+		$_amount,
+		$_id,
+		$_paymentOption,
+		$_products = array(),
+		$_store,
+		$_user;
 	
 	public function addPizza(Pizza $pizza)
 	{

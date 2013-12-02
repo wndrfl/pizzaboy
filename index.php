@@ -10,6 +10,15 @@ $order = $dominos->createOrder();
 $user = $dominos->createUser();
 $order->setUser($user);
 
+// Set a payment option
+$creditCard = $dominos->createCreditCard();
+$creditCard->setNumber('1234123412341234');
+$creditCard->setExpiration('1116');
+$creditCard->setSecurityCode('666');
+$creditCard->setPostalCode('85719');
+$creditCard->setType('VISA');
+$order->setPaymentOption($creditCard);
+
 // Set a delivery address
 $address = $dominos->createAddress();
 $address->setStreet('1225 E. Alta Vista');
@@ -34,5 +43,7 @@ $order->setStore($store);
 
 // Price the order
 $dominos->priceOrder($order);
+
+$dominos->placeOrder($order);
 
 var_dump($order->amount());

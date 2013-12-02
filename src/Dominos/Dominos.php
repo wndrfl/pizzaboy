@@ -2,6 +2,7 @@
 namespace Dominos;
 
 use Dominos\Order\Order;
+use Dominos\PaymentOption\CreditCard;
 use Dominos\Product\Pizza;
 use Dominos\Store\Store;
 use Dominos\User\Address;
@@ -296,6 +297,12 @@ class Dominos
 		return $address;
 	}
 	
+	public function createCreditCard()
+	{
+		$creditCard = new CreditCard();
+		return $creditCard;
+	}
+	
 	public function createPizza()
 	{
 		$pizza = new Pizza();
@@ -389,9 +396,6 @@ class Dominos
 		}
 	}
 	
-	/*
-	* {"Order":{"Address":{"Street":"132 GALLEON ST","City":"MARINA DEL REY","Region":"CA","PostalCode":"90292-5904","Type":"house","Name":"Home","IsDefault":true},"Coupons":[],"CustomerID":"","Email":"","Extension":"","FirstName":"","LastName":"","LanguageCode":"en","OrderChannel":"OLO","OrderID":"q8-iQDwisH2MGHVkuFUZ","OrderMethod":"Web","OrderTaker":null,"Payments":[],"Phone":"","Products":[{"Code":"14SCREEN","Qty":1,"ID":1,"isNew":false,"Options":{"C":{"1/1":"1"},"X":{"1/1":"1"}}}],"ServiceMethod":"Delivery","SourceOrganizationURI":"order.dominos.com","StoreID":"7803","Tags":{},"Version":"1.0","NoCombine":true,"Partners":{}}}
-	*/
 	public function priceOrder(Order $order)
 	{
 		$request = $this->_createBasicOrderRequest($order);
@@ -411,9 +415,6 @@ class Dominos
 		return false;
 	}
 	
-	/*
-	* '{"Order":{"Address":{"Street":"{street}","City":"{city}","Region":"CA","PostalCode":"90292-5904","Type":"House"},"Coupons":[],"CustomerID":"","Email":"{email}","Extension":"","FirstName":"{firstname}","LastName":"{lastname}","LanguageCode":"en","OrderChannel":"OLO","OrderID":"97wMPZa2kZdi3TMNTXO_","OrderMethod":"Web","OrderTaker":null,"Payments":[{"Type":"CreditCard","Amount":13.61,"Number":"XXXXXXXXXXXXXXXX","CardType":"VISA","Expiration":"0316","SecurityCode":"253","PostalCode":"85719"}],"Phone":"{phone}","Products":[{"Code":"14SCREEN","Qty":1,"ID":1,"isNew":false,"Options":{"P":{"1/1":"1"},"X":{"1/1":"1"},"C":{"1/1":"1"}}}],"ServiceMethod":"Delivery","SourceOrganizationURI":"order.dominos.com","StoreID":"7803","Tags":{},"Version":"1.0","NoCombine":true,"Partners":{}}}'
-	*/
 	public function placeOrder(Order $order)
 	{
 		$request = $this->_createBasicOrderRequest($order);
@@ -424,12 +425,8 @@ class Dominos
 		$request = $this->_cleanRequest($request);
 		
 		$endpoint = $this->_buildEndpoint('PLACE_ORDER');
-		
-		//KILL SWITCH
-		var_dump($request);
-		return true;
 
-		//$response = $this->_sendRequest($endpoint,'POST',$request);
+		$response = $this->_sendRequest($endpoint,'POST',$request);
 		
 		if($response['SUCCESS']) {
 			$responseBody = json_decode($response['RESPONSE'],true);

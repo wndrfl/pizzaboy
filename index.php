@@ -44,6 +44,9 @@ $order->setStore($store);
 // Price the order
 $dominos->priceOrder($order);
 
-$dominos->placeOrder($order);
-
-var_dump($order->amount());
+// Place the order
+if($dominos->placeOrder($order)) {
+	echo "Your order was placed!";
+}else{
+	echo "Sorry, there was a problem.";
+}

@@ -1,4 +1,11 @@
 <?php
+/**
+ * Dominos API Wrapper
+ * version 1.0.0
+ * 
+ * Copyright 2013 Wonderful Co.
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ **/
 namespace Dominos;
 
 use Dominos\Order\Order;

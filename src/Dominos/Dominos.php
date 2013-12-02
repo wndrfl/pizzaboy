@@ -289,25 +289,6 @@ class Dominos
 	}
 	
 	/**
-	 * Finds the store branch closest to the address.
-	 * 
-	 * Runs a search of store branches around the provided
-	 * address and returns the first on the list (assumed the closest)
-	 * 
-	 * @return Object Returns a Store object or false if none found
-	 **/
-	public function closestStore($street,$city,$state,$postal)
-	{
-		$stores = $this->findStores($street,$city,$state,$postal);
-		
-		if($stores) {
-			return $stores[0];
-		}
-		
-		return false;
-	}
-	
-	/**
 	 * Create a new Address object.
 	 **/
 	public function createAddress()
@@ -358,22 +339,39 @@ class Dominos
 	}
 	
 	/**
+	 * Finds the store branch closest to the address.
+	 * 
+	 * Runs a search of store branches around the provided
+	 * address and returns the first on the list (assumed the closest)
+	 * 
+	 * @return Object Returns a Store object or false if none found
+	 **/
+	public function findClosestStore(Address $address)
+	{
+		$stores = $this->findStores($address);
+		
+		if($stores) {
+			return $stores[0];
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Find stores around a provided address.
 	 * 
 	 * Use Dominos API to search for stores within range
 	 * of the provided address.
 	 * 
-	 * @todo Use Address object instead of individual arguments.
-	 * 
 	 * @return Array An array of Store objects
 	 **/
-	public function findStores($street,$city,$state,$postal)
+	public function findStores(Address $address)
 	{
 		$endpoint = $this->_buildEndpoint('STORE_LOCATOR');
 		$response = $this->_sendRequest($endpoint,'GET',array(
 			'type' => 'Delivery',
-			'c' => strtoupper($city.', '.$state.' '.$postal),
-			's' => strtoupper($street)
+			'c' => strtoupper($address->city().', '.$address->region().' '.$address->postalCode()),
+			's' => strtoupper($address->street())
 		));
 		
 		$stores = array();

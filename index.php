@@ -38,7 +38,7 @@ $pizza->addTopping(\Dominos\Dominos::TOPPING_PEPPERONI,\Dominos\Dominos::TOPPING
 $order->addPizza($pizza);
 
 // Set store
-$store = $dominos->closestStore('1225 E. Alta Vista','Tucson','Arizona','85719');
+$store = $dominos->findClosestStore($address);
 $order->setStore($store);
 
 // Price the order

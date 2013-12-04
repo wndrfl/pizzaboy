@@ -10,6 +10,7 @@ namespace Dominos;
 
 use Dominos\Order\Order;
 use Dominos\PaymentOption\CreditCard;
+use Dominos\PaymentOption\SavedCreditCard;
 use Dominos\Product\Pizza;
 use Dominos\Store\Store;
 use Dominos\User\Address;
@@ -21,6 +22,7 @@ class Dominos
 	static
 		$ENDPOINT_ROOT 	= 'https://order.dominos.com/',
 		$ENDPOINTS		= array(
+			'CUSTOMER_CARD' => 'power/customer/%s/card',
 			'LOGIN' => 'power/login',
 			'PLACE_ORDER' => 'power/place-order',
 			'PRICE_ORDER' => 'power/price-order',
@@ -152,7 +154,7 @@ class Dominos
 		return $request;
 	}
 	
-	private function _sendRequest($url,$method='POST',$params=array())
+	private function _sendRequest($url,$method='POST',$params=array(),array $authentication=array())
 	{
 		$ch = curl_init();
 		
@@ -177,6 +179,10 @@ class Dominos
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+		
+		if($authentication) {
+			curl_setopt($ch, CURLOPT_USERPWD, $authentication['username'] . ":" . $authentication['password']);
+		}
 
 		$response = curl_exec($ch);
 
@@ -397,6 +403,38 @@ class Dominos
 		return $stores;
 	}
 	
+	public function getPrimaryCreditCard(User $user)
+	{
+		$endpoint = $this->_buildEndpoint('CUSTOMER_CARD',$user->id());
+		$response = $this->_sendRequest($endpoint,'GET',array(),array(
+			'username' => $user->email(),
+			'password' => $user->password()
+		));
+		
+		if($response['SUCCESS']) {
+			$responseBody = json_decode($response['RESPONSE'],true);
+			
+			foreach($responseBody as $card) {
+				if($card['isDefault'] == true) {
+					$creditCard = new SavedCreditCard();
+					$creditCard->setId($card['id']);
+					$creditCard->setType($card['cardType']);
+					$creditCard->setLastFour($card['lastFour']);
+					$creditCard->setExpirationMonth($card['expirationMonth']);
+					$creditCard->setExpirationYear($card['expirationYear']);
+					$creditCard->setBillingZip($card['billingZip']);
+					$creditCard->setIsDefault($card['isDefault']);
+					$creditCard->setNickName($card['nickName']);
+					
+					return $creditCard;
+				}
+			}
+			
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Find a store by its id.
 	 * 
@@ -436,16 +474,23 @@ class Dominos
 	 * 
 	 * @todo Return and throw exceptions
 	 **/
-	public function login($user,$pass)
+	public function login($email,$password)
 	{
 		$endpoint = $this->_buildEndpoint('LOGIN');
 		$response = $this->_sendRequest($endpoint,'POST',array(
-			'u' => $user,
-			'p' => $pass
+			'u' => $email,
+			'p' => $password
 		));
 		
 		if($response['SUCCESS']) {
-			var_dump($response['SUCCESS']);
+			$responseBody = json_decode($response['RESPONSE'],true);
+			$user = $this->createUser();
+			$user->setEmail($email);
+			$user->setPassword($password);
+			$user->setId($responseBody['CustomerID']);
+			
+			return $user;
+			
 		}else{
 			throw new InvalidLoginException();
 		}

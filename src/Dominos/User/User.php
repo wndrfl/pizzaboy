@@ -10,8 +10,10 @@ class User
 		$_address,
 		$_email,
 		$_firstName,
+		$_id,
 		$_lastActive,
 		$_lastName,
+		$_password,
 		$_phone;
 	
 	public function address()
@@ -29,9 +31,19 @@ class User
 		return $this->_firstName;
 	}
 	
+	public function id()
+	{
+		return $this->_id;
+	}
+	
 	public function lastName()
 	{
 		return $this->_lastName;
+	}
+	
+	public function password()
+	{
+		return $this->_password;
 	}
 	
 	public function phone()
@@ -57,9 +69,21 @@ class User
 		return $this;
 	}
 	
+	public function setId($id)
+	{
+		$this->_id = $id;
+		return $this;
+	}
+	
 	public function setLastName($lastName)
 	{
 		$this->_lastName = $lastName;
+		return $this;
+	}
+	
+	public function setPassword($password)
+	{
+		$this->_password = $password;
 		return $this;
 	}
 

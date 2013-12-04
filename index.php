@@ -4,6 +4,10 @@ if(isset($_POST['sub_order'])) {
 	require 'src/autoload.php';
 
 	$dominos = new \Dominos\Dominos();
+	
+	$user = $dominos->login('johnnietheblack@gmail.com','Pooper1224!');
+	$creditCard = $dominos->getPrimaryCreditCard($user);
+	die();
 
 	// Create your order
 	$order = $dominos->createOrder();

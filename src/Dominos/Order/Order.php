@@ -3,6 +3,7 @@ namespace Dominos\Order;
 
 use Dominos\PaymentOption\PaymentOption;
 use Dominos\Product\Pizza;
+use Dominos\Store\Coupon;
 use Dominos\Store\Store;
 use Dominos\User\Address;
 use Dominos\User\User;
@@ -12,12 +13,20 @@ class Order
 	private	
 		$_address,
 		$_amount,
+		$_coupons,
 		$_id,
 		$_paymentOption,
 		$_products = array(),
 		$_store,
 		$_user;
 	
+
+	public function addCoupon(Coupon $coupon)
+	{
+		$this->_coupons[] = $coupon;
+		return $this;
+	}
+		
 	public function addPizza(Pizza $pizza)
 	{
 		$this->_products[] = $pizza;
@@ -32,6 +41,11 @@ class Order
 	public function amount()
 	{
 		return $this->_amount;
+	}
+	
+	public function coupons()
+	{
+		return $this->_coupons;
 	}
 	
 	public function id()

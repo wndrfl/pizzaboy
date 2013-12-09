@@ -1,54 +1,53 @@
 <?php
+
+// Start Dominos - vroom
+require 'src/autoload.php';
+$dominos = new \Dominos\Dominos();
+
 if(isset($_POST['sub_order'])) {
 	
-	require 'src/autoload.php';
-
-	$dominos = new \Dominos\Dominos();
-	
-	$user = $dominos->login('johnnietheblack@gmail.com','Pooper1224!');
-	$creditCard = $dominos->getPrimaryCreditCard($user);
-	die();
-
 	// Create your order
 	$order = $dominos->createOrder();
 
-	// Set user info
-	$user = $dominos->createUser();
+	// Login and set user info
+	$user = $dominos->login($_POST['email'],$_POST['password']);
 	$order->setUser($user);
-
-	// Set a payment option
-	$creditCard = $dominos->createCreditCard();
-	$creditCard->setNumber($_POST['cc']);
-	$creditCard->setExpiration($_POST['expiration_month'].$_POST['expiration_year']);
-	$creditCard->setSecurityCode($_POST['security_code']);
-	$creditCard->setPostalCode($_POST['billing_zip']);
-	$creditCard->setType($_POST['card_type']);
-	$order->setPaymentOption($creditCard);
 
 	// Set a delivery address
 	$address = $dominos->createAddress();
-	$address->setStreet('1225 E. Alta Vista');
-	$address->setCity('Tucson');
-	$address->setRegion('Arizona');
-	$address->setPostalCode('85719');
+	$address->setStreet($_POST['street']);
+	$address->setCity($_POST['city']);
+	$address->setRegion($_POST['state']);
+	$address->setPostalCode($_POST['postal_code']);
 	$order->setAddress($address);
 
 	// Add a pizza to this order
 	$pizza = $dominos->createPizza();
-	$pizza->setType(\Dominos\Dominos::SIZE_12_HAND);
+	$pizza->setType(\Dominos\Dominos::SIZE_14_HAND);
 	$pizza->setCheesePortion(\Dominos\Dominos::CHEESE_PORTION_WHOLE);
 	$pizza->setCheeseWeight(\Dominos\Dominos::CHEESE_WEIGHT_NORMAL);
 	$pizza->setSauceType(\Dominos\Dominos::SAUCE_TOMATO);
 	$pizza->setSauceWeight(\Dominos\Dominos::SAUCE_WEIGHT_NORMAL);
 	$pizza->addTopping(\Dominos\Dominos::TOPPING_PEPPERONI,\Dominos\Dominos::TOPPING_PORTION_WHOLE,\Dominos\Dominos::TOPPING_WEIGHT_NORMAL);
+	$pizza->addTopping(\Dominos\Dominos::TOPPING_PINEAPPLES,\Dominos\Dominos::TOPPING_PORTION_WHOLE,\Dominos\Dominos::TOPPING_WEIGHT_NORMAL);
 	$order->addPizza($pizza);
 
 	// Set store
 	$store = $dominos->findClosestStore($address);
 	$order->setStore($store);
+	
+	// Get coupons
+	$coupons = $dominos->getStoreCoupons($store->id());
+	$order->addCoupon($coupons[0]);
 
 	// Price the order
 	$dominos->priceOrder($order);
+	
+	$dominos->validateOrder($order);
+	
+	// Set a payment option
+	$creditCard = $dominos->getPrimaryCreditCard($user);
+	$order->setPaymentOption($creditCard);
 
 	// Place the order
 	if($dominos->placeOrder($order)) {
@@ -89,6 +88,22 @@ if(isset($_POST['sub_order'])) {
 
 		<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post" class="order-form">
 			<fieldset>
+				<legend>Your Dominos Login</legend>
+				<div class="form-section">
+					<label>Email</label>
+					<div>
+						<input type="text" name="email" placeholder="Your email..." />
+					</div>
+				</div>
+				<div class="form-section">
+					<label>Password</label>
+					<div>
+						<input type="password" name="password" placeholder="Your password..." />
+					</div>
+				</div>
+			</fieldset>
+			
+			<fieldset>
 				<legend>Delivery Address</legend>
 				<div class="form-section">
 					<label>Street</label>
@@ -105,7 +120,7 @@ if(isset($_POST['sub_order'])) {
 				<div class="form-section">
 					<label>State</label>
 					<div>
-						<select>
+						<select name="state">
 							<option value="AL">Alabama</option>
 							<option value="AK">Alaska</option>
 							<option value="AZ">Arizona</option>
@@ -164,52 +179,6 @@ if(isset($_POST['sub_order'])) {
 					<label>Postal Code</label>
 					<div>
 						<input type="text" name="postal_code" placeholder="55555" />
-					</div>
-				</div>
-			</fieldset>
-
-			<fieldset>
-				<legend>Billing Information</legend>
-				<div class="form-section">
-					<label>Credit Card</label>
-					<div>
-						<input type="text" name="cc" placeholder="No spaces..." />
-					</div>
-				</div>
-				<div class="form-section">
-					<label>Security Code</label>
-					<div>
-						<input type="text" name="security_code" placeholder="Three digits..." />
-					</div>
-				</div>
-				<div class="form-section">
-					<label>Expiration</label>
-					<div>
-						<select name="expiration_month">
-							<?php for($i=1;$i<=12;$i++) { ?>
-							<option value="<?php echo sprintf("%02s", $i); ?>"><?php echo $i; ?></option>
-							<?php } ?>
-						</select>
-						<select name="expiration_year">
-							<?php for($i=13;$i<=20;$i++) { ?>
-							<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-							<?php } ?>
-						</select>
-					</div>
-				</div>
-				<div class="form-section">
-					<label>Card Type</label>
-					<div>
-						<select name="card_type">
-							<option value="VISA">Visa</option>
-							<option value="AMEX">Amex</option>
-						</select>
-					</div>
-				</div>
-				<div class="form-section">
-					<label>Billing Zip</label>
-					<div>
-						<input type="text" name="billing_zip" placeholder="Five digits..." />
 					</div>
 				</div>
 			</fieldset>

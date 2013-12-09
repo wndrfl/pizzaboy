@@ -12,6 +12,7 @@ use Dominos\Order\Order;
 use Dominos\PaymentOption\CreditCard;
 use Dominos\PaymentOption\SavedCreditCard;
 use Dominos\Product\Pizza;
+use Dominos\Store\Coupon;
 use Dominos\Store\Store;
 use Dominos\User\Address;
 use Dominos\User\User;
@@ -27,6 +28,7 @@ class Dominos
 			'PLACE_ORDER' => 'power/place-order',
 			'PRICE_ORDER' => 'power/price-order',
 			'STORE_LOCATOR' => 'power/store-locator',
+			'STORE_MENU' => 'power/store/%s/menu',
 			'STORE_PROFILE' => 'power/store/%d/profile',
 			'VALIDATE_ORDER' => 'power/validate-order'
 		);
@@ -124,10 +126,19 @@ class Dominos
 	
 	private function _createBasicOrderRequest(Order $order)
 	{
+		$coupons = array();
+		foreach($order->coupons() as $coupon) {
+			$coupons[] = array(
+				'Code' => $coupon->code(),
+				'ID' => 1,
+				'Qty' => 1
+			);
+		}
+		
 		$request = array(
 			'Order' => array(
 				'Address' => array(),
-				'Coupons' => array(),
+				'Coupons' => $coupons,
 				'CustomerID' => '',
 				'Email' => '',
 				'Extension' => '',
@@ -154,7 +165,7 @@ class Dominos
 		return $request;
 	}
 	
-	private function _sendRequest($url,$method='POST',$params=array(),array $authentication=array())
+	private function _sendRequest($url,$method='POST',$params=array(),array $authentication=array(),array $headers=array())
 	{
 		$ch = curl_init();
 		
@@ -178,7 +189,14 @@ class Dominos
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_REFERER, 'https://order.dominos.com/en/pages/order/payment.jsp');
+		
+		if($headers) {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		}
+		
+		curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 		
 		if($authentication) {
 			curl_setopt($ch, CURLOPT_USERPWD, $authentication['username'] . ":" . $authentication['password']);
@@ -190,23 +208,26 @@ class Dominos
 		$headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 		$header = substr($response, 0, $headerSize);
 		$responseBody = substr($response, $headerSize);
+		$headerInfo = curl_getinfo($ch);
 
 		return array(
 			'CODE' => $responseCode,
 			//'RAW' => $response,
 			'RESPONSE' => $responseBody,
 			'SUCCESS' => ($responseCode == 200) ? true : false,
+			'HEADER' => $headerInfo
 		);
 	}
 	
 	private function _setupOrderRequestAddress(Order $order,$request)
 	{
 		$request['Order']['Address'] = array(
-			'Street' => $order->address()->street(),
-			'City' => $order->address()->city(),
+			'Street' => strtoupper($order->address()->street()),
+			'City' => strtoupper($order->address()->city()),
 			'Region' => $order->address()->region(),
-			'PostalCode' => $order->address()->postalCode(),
-			'Type' => $order->address()->type()
+			'PostalCode' => '90036-3402',
+			//'PostalCode' => $order->address()->postalCode(),
+			'Type' => 'Apartment'
 		);
 		
 		return $request;
@@ -217,15 +238,28 @@ class Dominos
 		$request['Order']['Payments'] = array();
 		
 		if($order->paymentOption()) {
-			$request['Order']['Payments'][] = array(
-				'Type' => 'CreditCard',
-				'Amount' => $order->amount(),
-				'Number' => $order->paymentOption()->number(),
-				'CardType' => $order->paymentOption()->type(),
-				'Expiration' => $order->paymentOption()->expiration(),
-				'SecurityCode' => $order->paymentOption()->securityCode(),
-				'PostalCode' => $order->paymentOption()->postalCode()
-			);
+			
+			$paymentOption = $order->paymentOption();
+			
+			if($paymentOption instanceof SavedCreditCard) {
+				$request['Order']['Payments'][] = array(
+					'Type' => 'CreditCard',
+					'Amount' => $order->amount(),
+					'CardID' => $paymentOption->id()
+				);
+				
+			}elseif($paymentOption instanceof CreditCard) {
+				$request['Order']['Payments'][] = array(
+					'Type' => 'CreditCard',
+					'Amount' => $order->amount(),
+					'Number' => $order->paymentOption()->number(),
+					'CardType' => $order->paymentOption()->type(),
+					'Expiration' => $order->paymentOption()->expiration(),
+					'SecurityCode' => $order->paymentOption()->securityCode(),
+					'PostalCode' => $order->paymentOption()->postalCode()
+				);
+				
+			}
 		}
 		
 		return $request;
@@ -286,6 +320,7 @@ class Dominos
 	
 	private function _setupOrderRequestUser(Order $order,$request)
 	{
+		$request['Order']['CustomerID'] = $order->user()->id();
 		$request['Order']['Email'] = $order->user()->email();
 		$request['Order']['FirstName'] = $order->user()->firstName();
 		$request['Order']['LastName'] = $order->user()->lastName();
@@ -466,6 +501,46 @@ class Dominos
 		return false;
 	}
 	
+	public function getStoreCoupons($id)
+	{
+		$menu = $this->getStoreMenu($id);
+		
+		$coupons = array();
+		foreach($menu['Coupons']['Data'] as $data) {
+			$coupon = new Coupon();
+
+			$coupon->setSortSeq($data[0]);
+			$coupon->setCode($data[1]);
+			$coupon->setGroupCodes($data[2]);
+			$coupon->setTags($data[3]);
+			$coupon->setName($data[4]);
+			$coupon->setDescription($data[5]);
+			$coupon->setPrice($data[6]);
+			$coupon->setImageCode($data[7]);
+			$coupon->setLargeSizeImageUrl($data[8]);
+			$coupon->setThumbNailSizeImageUrl($data[9]);
+			
+			$coupons[] = $coupon;
+		}
+		
+		return $coupons;
+	}
+	
+	public function getStoreMenu($id)
+	{
+		$endpoint = $this->_buildEndpoint('STORE_MENU',intval($id));
+		$response = $this->_sendRequest($endpoint,'GET');
+		
+		if($response['SUCCESS']) {
+			$responseBody = json_decode($response['RESPONSE'],true);
+			
+			return $responseBody;
+			
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Log in to a Dominos account.
 	 * 
@@ -486,8 +561,11 @@ class Dominos
 			$responseBody = json_decode($response['RESPONSE'],true);
 			$user = $this->createUser();
 			$user->setEmail($email);
-			$user->setPassword($password);
+			$user->setFirstName($responseBody['FirstName']);
 			$user->setId($responseBody['CustomerID']);
+			$user->setLastName($responseBody['LastName']);
+			$user->setPassword($password);
+			$user->setPhone($responseBody['Phone']);
 			
 			return $user;
 			
@@ -550,7 +628,13 @@ class Dominos
 		
 		$endpoint = $this->_buildEndpoint('PLACE_ORDER');
 
-		$response = $this->_sendRequest($endpoint,'POST',$request);
+		$response = $this->_sendRequest($endpoint,'POST',$request,array(
+			'username' => $order->user()->email(),
+			'password' => $order->user()->password()
+		),array(
+			"Accept: application/vnd.dominos.customer.card+json;version=1.0",
+			"Content-Type: application/json"
+		));
 		
 		if($response['SUCCESS']) {
 			$responseBody = json_decode($response['RESPONSE'],true);
@@ -580,10 +664,18 @@ class Dominos
 		$request = $this->_cleanRequest($request);
 
 		$endpoint = $this->_buildEndpoint('VALIDATE_ORDER');
-		$response = $this->_sendRequest($endpoint,'POST',$request);
-
+		$response = $this->_sendRequest($endpoint,'POST',$request,array(
+			'username' => $order->user()->email(),
+			'password' => $order->user()->password()
+		),array(
+			"Accept: application/vnd.dominos.customer.card+json;version=1.0",
+			"Content-Type: application/json"
+		));
+		
 		if($response['SUCCESS']) {
 			$responseBody = json_decode($response['RESPONSE'],true);
+			$order->setId($responseBody['Order']['OrderID']);
+			
 			return ($responseBody['Status'] == 1) ? true : false;
 		}
 		

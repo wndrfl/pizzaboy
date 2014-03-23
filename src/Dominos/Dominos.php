@@ -8,13 +8,14 @@
  **/
 namespace Dominos;
 
+use Dominos\Lang\Lang as Lang;
+use Dominos\Order\Address;
 use Dominos\Order\Order;
 use Dominos\PaymentOption\CreditCard;
 use Dominos\PaymentOption\SavedCreditCard;
 use Dominos\Product\Pizza;
 use Dominos\Store\Coupon;
 use Dominos\Store\Store;
-use Dominos\User\Address;
 use Dominos\User\User;
 
 class Dominos
@@ -32,79 +33,15 @@ class Dominos
 			'STORE_PROFILE' => 'power/store/%d/profile',
 			'VALIDATE_ORDER' => 'power/validate-order'
 		);
+		
+	private
+		$_testMode = false;	
 
-	// Pizza sizes
-	const
-		SIZE_10_GLU 				= 'P10IGFZA',
-		SIZE_10_HAND 				= '10SCREEN',
-		SIZE_12_HAND 				= '12SCREEN',
-		SIZE_14_HAND 				= '14SCREEN',
-		SIZE_12_PAN  				= 'P12IPAZA',
-		SIZE_10_THIN 				= '10THIN',
-		SIZE_12_THIN 				= '12THIN',
-		SIZE_14_THIN 				= '14THIN',
-		SIZE_14_BROOKLYN 			= 'PBKIREZA',
-		SIZE_16_BROOKLYN 			= 'P16IBKZA';
-
-	// Cheese portions
-	const
-		CHEESE_PORTION_LEFT			= '1/2',
-		CHEESE_PORTION_WHOLE		= '1/1',
-		CHEESE_PORTION_RIGHT		= '2/2';
-
-	// Cheese weight
-	const
-		CHEESE_WEIGHT_LIGHT			= '0.5',
-		CHEESE_WEIGHT_NORMAL		= '1',
-		CHEESE_WEIGHT_EXTRA			= '1.5',
-		CHEESE_WEIGHT_DOUBLE		= '2',
-		CHEESE_WEIGHT_TRIPLE		= '3';
-
-	// Toppings
-	const
-		TOPPING_PEPPERONI			= 'P',
-		TOPPING_ITALIAN_SAUSAGE 	= 'S',
-		TOPPING_BEEF 				= 'B',
-		TOPPING_HAM 				= 'H',
-		TOPPING_BACON 				= 'K',
-		TOPPING_PHILLY_STEAK 		= 'Pm',
-		TOPPING_GREEN_PEPPERS 		= 'G',
-		TOPPING_BLACK_OLIVES 		= 'R',
-		TOPPING_PINEAPPLES 			= 'N',
-		TOPPING_MUSHROOMS 			= 'M',
-		TOPPING_ONIONS 				= 'O',
-		TOPPING_JALAPENOS 			= 'J',
-		TOPPING_BANANA_PEPPERS 		= 'Z',
-		TOPPING_CHEDDAR_CHEESE 		= 'E',
-		TOPPING_PROVOLONE_CHEESE 	= 'Cp',
-		TOPPING_GREEN_OLIVES 		= 'V',
-		TOPPING_DICED_TOMATOES 		= 'Td';
-
-	// Toppings portions
-	const
-		TOPPING_PORTION_LEFT		= '1/2',
-		TOPPING_PORTION_WHOLE		= '1/1',
-		TOPPING_PORTION_RIGHT		= '2/2';	
-
-	// Toppings weight
-	const
-		TOPPING_WEIGHT_LIGHT			= '0.5',
-		TOPPING_WEIGHT_NORMAL			= '1',
-		TOPPING_WEIGHT_EXTRA			= '1.5';	
-
-	// Sauces
-	const
-		SAUCE_TOMATO 				= 'X',
-		SAUCE_MARINARA				= 'Xm',
-		SAUCE_BBQ					= 'Bq',
-		SAUCE_WHITE					= 'Xw';
-
-	// Sauce weight
-	const
-		SAUCE_WEIGHT_LIGHT			= '0.5',
-		SAUCE_WEIGHT_NORMAL			= '1',
-		SAUCE_WEIGHT_EXTRA			= '1.5';	
-
+	public function __construct($testMode=false)
+	{
+		$this->_testMode = (bool) $testMode;
+	}
+	
 	private function _buildEndpoint($alias/*, $arg, $arg... */)
 	{	
 		if(!isset(self::$ENDPOINTS[$alias])) {
@@ -126,6 +63,7 @@ class Dominos
 	
 	private function _createBasicOrderRequest(Order $order)
 	{
+		/*
 		$coupons = array();
 		foreach($order->coupons() as $coupon) {
 			$coupons[] = array(
@@ -134,11 +72,12 @@ class Dominos
 				'Qty' => 1
 			);
 		}
+		*/
 		
 		$request = array(
 			'Order' => array(
 				'Address' => array(),
-				'Coupons' => $coupons,
+				//'Coupons' => $coupons,
 				'CustomerID' => '',
 				'Email' => '',
 				'Extension' => '',
@@ -352,22 +291,7 @@ class Dominos
 	 **/
 	public function createPizza()
 	{
-		$pizza = new Pizza();
-		return $pizza;
-	}
-	
-	/**
-	 * Create a new Order object.
-	 **/
-	public function createOrder(array $pizzas=array())
-	{
-		$order = new Order();
-		
-		foreach($pizzas as $pizza) {
-			$order->addPizza($pizza);
-		}
-		
-		return $order;
+		return new Pizza;
 	}
 	
 	/**
@@ -375,8 +299,7 @@ class Dominos
 	 **/
 	public function createUser()
 	{
-		$user = new User();
-		return $user;
+		return new User($this);
 	}
 	
 	/**
@@ -418,8 +341,8 @@ class Dominos
 		$stores = array();
 		
 		if($response['SUCCESS']) {
-			$responseBody = json_decode($response['RESPONSE'],true);
 			
+			$responseBody = json_decode($response['RESPONSE'],true);
 			$stores = array();
 			foreach($responseBody['Stores'] as $storeData) {
 				$store = new Store();
@@ -575,6 +498,14 @@ class Dominos
 	}
 	
 	/**
+	 * Create a new Order object.
+	 **/
+	public function newOrder()
+	{
+		return new Order($this);
+	}
+	
+	/**
 	 * Calculate an estimated price for an order.
 	 * 
 	 * Send the order to Dominos to determine a price
@@ -628,13 +559,18 @@ class Dominos
 		
 		$endpoint = $this->_buildEndpoint('PLACE_ORDER');
 
-		$response = $this->_sendRequest($endpoint,'POST',$request,array(
-			'username' => $order->user()->email(),
-			'password' => $order->user()->password()
-		),array(
-			"Accept: application/vnd.dominos.customer.card+json;version=1.0",
-			"Content-Type: application/json"
-		));
+		if($this->_testMode === false) {
+			$response = $this->_sendRequest($endpoint,'POST',$request,array(
+				'username' => $order->user()->email(),
+				'password' => $order->user()->password()
+			),array(
+				"Accept: application/vnd.dominos.customer.card+json;version=1.0",
+				"Content-Type: application/json"
+			));
+		
+		}else{
+			return true;
+		}
 		
 		if($response['SUCCESS']) {
 			$responseBody = json_decode($response['RESPONSE'],true);

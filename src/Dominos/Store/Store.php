@@ -1,7 +1,10 @@
 <?php
 namespace Dominos\Store;
 
-class Store
+use Dominos\ChildSavableInterface;
+use Dominos\ParentSavableInterface;
+
+class Store implements ChildSavableInterface
 {
 	private
 		$_address,
@@ -11,6 +14,16 @@ class Store
 		$_isDeliveryStore,
 		$_isOpen,
 		$_phone;
+	
+	private
+		$_parent;
+	
+	public function __construct(ParentSavableInterface $parent=null)
+	{
+		if($parent) {
+			$this->_parent = $parent;
+		}
+	}
 	
 	public function address()
 	{
@@ -45,6 +58,15 @@ class Store
 	public function phone()
 	{
 		return $this->_phone;
+	}
+	
+	public function save()
+	{
+		if($this->_parent) {
+			$this->_parent->saveChild($this);
+		}
+		
+		return $this;
 	}
 	
 	public function setAddress($address)

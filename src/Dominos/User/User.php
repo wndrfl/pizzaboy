@@ -1,6 +1,7 @@
 <?php
 namespace Dominos\User;
 
+use Dominos\Dominos;
 use Dominos\User\Address;
 
 class User
@@ -15,6 +16,14 @@ class User
 		$_lastName,
 		$_password,
 		$_phone;
+	
+	private
+		$_dominos;
+	
+	public function __construct(Dominos $dominos)
+	{
+		$this->_dominos = $dominos;
+	}
 	
 	public function address()
 	{
@@ -39,6 +48,13 @@ class User
 	public function lastName()
 	{
 		return $this->_lastName;
+	}
+	
+	public function newOrder()
+	{
+		$order = $this->_dominos->newOrder();
+		$order->setUser($this);
+		return $order;
 	}
 	
 	public function password()

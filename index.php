@@ -2,58 +2,44 @@
 
 // Start Dominos - vroom
 require 'src/autoload.php';
-$dominos = new \Dominos\Dominos();
+$dominos = new \Dominos\Dominos(true); // TRUE for test mode
 
 if(isset($_POST['sub_order'])) {
-	
-	// Create your order
-	$order = $dominos->createOrder();
 
 	// Login and set user info
 	$user = $dominos->login($_POST['email'],$_POST['password']);
-	$order->setUser($user);
-
-	// Set a delivery address
-	$address = $dominos->createAddress();
-	$address->setStreet($_POST['street']);
-	$address->setCity($_POST['city']);
-	$address->setRegion($_POST['state']);
-	$address->setPostalCode($_POST['postal_code']);
-	$order->setAddress($address);
+	
+	// Create a new order
+	$order = $user->newOrder();
 
 	// Add a pizza to this order
-	$pizza = $dominos->createPizza();
-	$pizza->setType(\Dominos\Dominos::SIZE_14_HAND);
-	$pizza->setCheesePortion(\Dominos\Dominos::CHEESE_PORTION_WHOLE);
-	$pizza->setCheeseWeight(\Dominos\Dominos::CHEESE_WEIGHT_NORMAL);
-	$pizza->setSauceType(\Dominos\Dominos::SAUCE_TOMATO);
-	$pizza->setSauceWeight(\Dominos\Dominos::SAUCE_WEIGHT_NORMAL);
-	$pizza->addTopping(\Dominos\Dominos::TOPPING_PEPPERONI,\Dominos\Dominos::TOPPING_PORTION_WHOLE,\Dominos\Dominos::TOPPING_WEIGHT_NORMAL);
-	$pizza->addTopping(\Dominos\Dominos::TOPPING_PINEAPPLES,\Dominos\Dominos::TOPPING_PORTION_WHOLE,\Dominos\Dominos::TOPPING_WEIGHT_NORMAL);
-	$order->addPizza($pizza);
-
-	// Set store
-	$store = $dominos->findClosestStore($address);
-	$order->setStore($store);
+	$order
+		->newPizza('medium','hand-tossed')
+		->setCheese('whole','normal')
+		->setSauce('tomato','normal')
+		->addPepperoni()
+		->addPineapple()
+		->save();
+		
+	// Set a delivery address
+	$order
+		->address()
+		->setStreet($_POST['street'])
+		->setCity($_POST['city'])
+		->setRegion($_POST['state'])
+		->setPostalCode($_POST['postal_code'])
+		->save();
 	
 	// Get coupons
+	/*
 	$coupons = $dominos->getStoreCoupons($store->id());
 	$order->addCoupon($coupons[0]);
-
-	// Price the order
-	$dominos->priceOrder($order);
+	*/
 	
-	$dominos->validateOrder($order);
-	
-	// Set a payment option
-	$creditCard = $dominos->getPrimaryCreditCard($user);
-	$order->setPaymentOption($creditCard);
-
-	// Place the order
-	if($dominos->placeOrder($order)) {
-		echo "Your order was placed!";
+	if($order->place()) {
+		echo "Order placed!";
 	}else{
-		echo "Sorry, there was a problem.";
+		echo "Order was not placed.";
 	}
 }
 ?>

@@ -1,16 +1,30 @@
 <?php
-namespace Dominos\User;
+namespace Dominos\Order;
 
-class Address
+use Dominos\ChildSavableInterface;
+use Dominos\ParentSavableInterface;
+
+class Address implements ChildSavableInterface
 {
 	private
 		$_city,
 		$_id,
+		$_order,
 		$_postalCode,
 		$_region,
 		$_street,
 		$_type,
 		$_userId;
+		
+	private
+		$_parent;
+	
+	public function __construct(ParentSavableInterface $parent=null)
+	{
+		if($parent) {
+			$this->_parent = $parent;
+		}
+	}
 	
 	public function city()
 	{
@@ -30,6 +44,14 @@ class Address
 	public function region()
 	{
 		return $this->_region;
+	}
+	
+	public function save()
+	{
+		if($this->_parent) {
+			$this->_parent->saveChild($this);
+		}
+		return $this;
 	}
 	
 	public function setCity($city)

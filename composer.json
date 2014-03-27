@@ -1,15 +1,17 @@
 {
     "name": "wonderful/dominos",
     "description": "A PHP based tool for ordering Dominos pizza",
+	"keywords": ["pizza","dominos"],
     "license": "MIT",
     "authors": [
         {
             "name": "Johnnie Munger",
-            "email": "johnnie@letsgetwonderful.com"
+            "email": "johnnie@letsgetwonderful.com",
+			"homepage": "http://www.letsgetwonderful.com",
         }
     ],
     "minimum-stability": "stable",
     "require": {
-
+		"php": ">=5.3.0"
     }
 }

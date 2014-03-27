@@ -1,8 +1,9 @@
 <?php
+session_start();
 
 // Start Dominos - vroom
 require 'src/autoload.php';
-$dominos = new \Dominos\Dominos(true); // TRUE for test mode
+$dominos = new \Dominos\Dominos(true); // TRUE | FALSE for test mode
 
 if(isset($_POST['sub_order'])) {
 

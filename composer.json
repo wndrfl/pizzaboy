@@ -1,6 +1,7 @@
 {
     "name": "wndrfl/dominos",
     "description": "A simple PHP wrapper for the Dominos API",
+	"version": "0.0.5-stable",
     "authors": [
         {
             "name": "Johnnie Munger",

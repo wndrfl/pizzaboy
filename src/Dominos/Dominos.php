@@ -525,7 +525,14 @@ class Dominos
 		$request = $this->_cleanRequest($request);
 
 		$endpoint = $this->_buildEndpoint('PRICE_ORDER');
-		$response = $this->_sendRequest($endpoint,'POST',$request);
+		//$response = $this->_sendRequest($endpoint,'POST',$request);
+		$response = $this->_sendRequest($endpoint,'POST',$request,array(
+			'username' => $order->user()->email(),
+			'password' => $order->user()->password()
+		),array(
+			"Accept: application/vnd.dominos.customer.card+json;version=1.0",
+			"Content-Type: application/json"
+		));
 
 		if($response['SUCCESS']) {
 			$responseBody = json_decode($response['RESPONSE'],true);

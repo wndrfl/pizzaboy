@@ -23,6 +23,25 @@ class Lang
 				'large' 		=> 14,
 				'x-large' 		=> 16
 			),
+			'toppings'	=> array(
+				'pepperoni' 		=> 'TOPPING_PEPPERONI',
+				'italian_sausage' 	=> 'TOPPING_ITALIAN_SAUSAGE',
+				'beef' 				=> 'TOPPING_BEEF',
+				'ham' 				=> 'TOPPING_HAM',
+				'bacon' 			=> 'TOPPING_BACON',
+				'philly_steak' 		=> 'TOPPING_PHILLY_STEAK',
+				'green_peppers' 	=> 'TOPPING_GREEN_PEPPERS',
+				'black_olives' 		=> 'TOPPING_BLACK_OLIVES',
+				'pineapples' 		=> 'TOPPING_PINEAPPLES',
+				'mushrooms' 		=> 'TOPPING_MUSHROOMS',
+				'onions' 			=> 'TOPPING_ONIONS',
+				'jalapenos' 		=> 'TOPPING_JALAPENOS',
+				'banana_peppers' 	=> 'TOPPING_BANANA_PEPPERS',
+				'cheddar_cheese' 	=> 'TOPPING_CHEDDAR_CHEESE',
+				'provolone_cheese' 	=> 'TOPPING_PROVOLONE_CHEESE',
+				'green_olives' 		=> 'TOPPING_GREEN_OLIVES',
+				'diced_tomatoes' 	=> 'TOPPING_DICED_TOMATOES'
+			),
 			'type' 		=> array(
 				'gluten-free' 	=> 'GLU',
 				'hand-tossed' 	=> 'HAND',

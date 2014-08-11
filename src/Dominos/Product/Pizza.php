@@ -199,16 +199,20 @@ class Pizza implements ChildSavableInterface
 	public function setHasCheese($hasCheese)
 	{
 		$this->_hasCheese = (bool) $hasCheese;
-		$this->_cheesePortion = null;
-		$this->_cheeseWeight = null;
+		if(!$hasCheese) {
+			$this->_cheesePortion = null;
+			$this->_cheeseWeight = null;
+		}
 		return $this;
 	}
 	
 	public function setHasSauce($hasSauce)
 	{
 		$this->_hasSauce = (bool) $hasSauce;
-		$this->_sauceType = null;
-		$this->_sauceWeight = null;
+		if(!$hasSauce) {
+			$this->_sauceType = null;
+			$this->_sauceWeight = null;
+		}
 		return $this;
 	}
 	

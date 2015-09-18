@@ -1,10 +1,10 @@
 <?php
-namespace Dominos\Product;
+namespace Pizzaboy\Product;
 
-use Dominos\ChildSavableInterface;
-use Dominos\ParentSavableInterface;
-use Dominos\Lang\Lang as Lang;
-use Dominos\Order\Order as Order;
+use Pizzaboy\ChildSavableInterface;
+use Pizzaboy\ParentSavableInterface;
+use Pizzaboy\Lang\Lang as Lang;
+use Pizzaboy\Order\Order as Order;
 
 class Pizza implements ChildSavableInterface
 {	

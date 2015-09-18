@@ -1,24 +1,24 @@
 <?php
 /**
- * Dominos API Wrapper
+ * Pizzaboy API Wrapper
  * version 1.0.0
  * 
  * Copyright 2013 Wonderful Co.
  * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
  **/
-namespace Dominos;
+namespace Pizzaboy;
 
-use Dominos\Lang\Lang as Lang;
-use Dominos\Order\Address;
-use Dominos\Order\Order;
-use Dominos\PaymentOption\CreditCard;
-use Dominos\PaymentOption\SavedCreditCard;
-use Dominos\Product\Pizza;
-use Dominos\Store\Coupon;
-use Dominos\Store\Store;
-use Dominos\User\User;
+use Pizzaboy\Lang\Lang as Lang;
+use Pizzaboy\Order\Address;
+use Pizzaboy\Order\Order;
+use Pizzaboy\PaymentOption\CreditCard;
+use Pizzaboy\PaymentOption\SavedCreditCard;
+use Pizzaboy\Product\Pizza;
+use Pizzaboy\Store\Coupon;
+use Pizzaboy\Store\Store;
+use Pizzaboy\User\User;
 
-class Dominos
+class Pizzaboy
 {
 	// API endpoints
 	static
@@ -324,7 +324,7 @@ class Dominos
 	/**
 	 * Find stores around a provided address.
 	 * 
-	 * Use Dominos API to search for stores within range
+	 * Use Pizzaboy API to search for stores within range
 	 * of the provided address.
 	 * 
 	 * @return Array An array of Store objects
@@ -396,8 +396,8 @@ class Dominos
 	/**
 	 * Find a store by its id.
 	 * 
-	 * Use Dominos API to find a store by its
-	 * Dominos store id.
+	 * Use Pizzaboy API to find a store by its
+	 * Pizzaboy store id.
 	 * 
 	 * @return Object A Store object
 	 * @return Boolean
@@ -465,9 +465,9 @@ class Dominos
 	}
 	
 	/**
-	 * Log in to a Dominos account.
+	 * Log in to a Pizzaboy account.
 	 * 
-	 * Authenticate a user by their Dominos
+	 * Authenticate a user by their Pizzaboy
 	 * credentials (user and password).
 	 * 
 	 * @todo Return and throw exceptions
@@ -508,7 +508,7 @@ class Dominos
 	/**
 	 * Calculate an estimated price for an order.
 	 * 
-	 * Send the order to Dominos to determine a price
+	 * Send the order to Pizzaboy to determine a price
 	 * based on delivery address, branch, and products in 
 	 * the order.
 	 * 
@@ -546,7 +546,7 @@ class Dominos
 	/**
 	 * Submit an order for payment / delivery.
 	 * 
-	 * Send an order to Dominos, including credit card
+	 * Send an order to Pizzaboy, including credit card
 	 * information, for purchase. If successful, the order will
 	 * be placed, the credit card will be charge, and the delivery
 	 * process will start.
@@ -588,9 +588,9 @@ class Dominos
 	}
 
 	/**
-	 * Validate an order against the Dominos API.
+	 * Validate an order against the Pizzaboy API.
 	 * 
-	 * Use the Dominos API to determine whether or not
+	 * Use the Pizzaboy API to determine whether or not
 	 * a current order request is valid.
 	 * 
 	 * @todo Throw exceptions when invalid

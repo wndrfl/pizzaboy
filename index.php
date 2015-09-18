@@ -2,14 +2,14 @@
 session_start();
 
 require 'vendor/autoload.php';
-use Dominos\Dominos;
+use Pizzaboy\Pizzaboy;
 
-$dominos = new Dominos(true); // TRUE | FALSE for test mode
+$pizzaboy = new Pizzaboy(true); // TRUE | FALSE for test mode
 
 if(isset($_POST['sub_order'])) {
 
 	// Login and set user info
-	$user = $dominos->login($_POST['email'],$_POST['password']);
+	$user = $pizzaboy->login($_POST['email'],$_POST['password']);
 	
 	// Create a new order
 	$order = $user->newOrder();
@@ -34,7 +34,7 @@ if(isset($_POST['sub_order'])) {
 	
 	// Get coupons
 	/*
-	$coupons = $dominos->getStoreCoupons($store->id());
+	$coupons = $pizzaboy->getStoreCoupons($store->id());
 	$order->addCoupon($coupons[0]);
 	*/
 	
@@ -72,11 +72,11 @@ if(isset($_POST['sub_order'])) {
 	
 	<div class="main-content">
 		
-		<h1>Order From Dominos</h1>
+		<h1>Order From Pizzaboy</h1>
 
 		<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post" class="order-form">
 			<fieldset>
-				<legend>Your Dominos Login</legend>
+				<legend>Your Pizzaboy Login</legend>
 				<div class="form-section">
 					<label>Email</label>
 					<div>

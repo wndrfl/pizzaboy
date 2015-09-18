@@ -1,7 +1,7 @@
 <?php
-namespace Dominos\PaymentOption;
+namespace Pizzaboy\PaymentOption;
 
-use Dominos\PaymentOption\PaymentOption;
+use Pizzaboy\PaymentOption\PaymentOption;
 
 class SavedCreditCard extends PaymentOption
 {

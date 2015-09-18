@@ -1,8 +1,8 @@
 <?php
-namespace Dominos\Store;
+namespace Pizzaboy\Store;
 
-use Dominos\ChildSavableInterface;
-use Dominos\ParentSavableInterface;
+use Pizzaboy\ChildSavableInterface;
+use Pizzaboy\ParentSavableInterface;
 
 class Store implements ChildSavableInterface
 {

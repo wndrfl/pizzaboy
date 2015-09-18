@@ -1,5 +1,5 @@
 <?php
-namespace Dominos;
+namespace Pizzaboy;
 
 interface ChildSavableInterface
 {

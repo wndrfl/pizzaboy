@@ -1,8 +1,8 @@
 <?php
-namespace Dominos\User;
+namespace Pizzaboy\User;
 
-use Dominos\Dominos;
-use Dominos\User\Address;
+use Pizzaboy\Pizzaboy;
+use Pizzaboy\User\Address;
 
 class User
 {	
@@ -18,11 +18,11 @@ class User
 		$_phone;
 	
 	private
-		$_dominos;
+		$_pizzaboy;
 	
-	public function __construct(Dominos $dominos)
+	public function __construct(Pizzaboy $pizzaboy)
 	{
-		$this->_dominos = $dominos;
+		$this->_pizzaboy = $pizzaboy;
 	}
 	
 	public function address()
@@ -52,7 +52,7 @@ class User
 	
 	public function newOrder()
 	{
-		$order = $this->_dominos->newOrder();
+		$order = $this->_pizzaboy->newOrder();
 		$order->setUser($this);
 		return $order;
 	}

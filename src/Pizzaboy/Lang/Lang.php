@@ -1,5 +1,5 @@
 <?php
-namespace Dominos\Lang;
+namespace Pizzaboy\Lang;
 
 class Lang
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Dominos\PaymentOption;
+namespace Pizzaboy\PaymentOption;
 
 abstract class PaymentOption
 {

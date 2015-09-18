@@ -1,5 +1,5 @@
 <?php
-namespace Dominos\Store;
+namespace Pizzaboy\Store;
 
 class Coupon
 {

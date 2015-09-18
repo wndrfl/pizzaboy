@@ -1,14 +1,14 @@
 <?php
-namespace Dominos\Order;
+namespace Pizzaboy\Order;
 
-use Dominos\Dominos as Dominos;
-use Dominos\ParentSavableInterface;
-use Dominos\PaymentOption\PaymentOption;
-use Dominos\Product\Pizza as Pizza;
-use Dominos\Store\Coupon;
-use Dominos\Store\Store as Store;
-use Dominos\Order\Address as Address;
-use Dominos\User\User;
+use Pizzaboy\Pizzaboy as Pizzaboy;
+use Pizzaboy\ParentSavableInterface;
+use Pizzaboy\PaymentOption\PaymentOption;
+use Pizzaboy\Product\Pizza as Pizza;
+use Pizzaboy\Store\Coupon;
+use Pizzaboy\Store\Store as Store;
+use Pizzaboy\Order\Address as Address;
+use Pizzaboy\User\User;
 
 class Order implements ParentSavableInterface
 {
@@ -16,7 +16,7 @@ class Order implements ParentSavableInterface
 		$_address,
 		$_amount,
 		$_coupons = array(),
-		$_dominos,
+		$_pizzaboy,
 		$_id,
 		$_paymentOption,
 		$_products = array(),
@@ -24,9 +24,9 @@ class Order implements ParentSavableInterface
 		$_stores = false,
 		$_user;
 	
-	public function __construct(Dominos $dominos)
+	public function __construct(Pizzaboy $pizzaboy)
 	{
-		$this->_dominos = $dominos;
+		$this->_pizzaboy = $pizzaboy;
 		
 		$this->_address = new Address($this);
 		$this->_store = new Store($this);
@@ -63,14 +63,14 @@ class Order implements ParentSavableInterface
 	
 	public function findStores()
 	{
-		$this->stores = $this->_dominos->findStores($this->address());
+		$this->stores = $this->_pizzaboy->findStores($this->address());
 		$this->setStore($this->stores[0]);
 		return $this;
 	}
 	
 	public function getPrice()
 	{
-		$this->_dominos->priceOrder($this);
+		$this->_pizzaboy->priceOrder($this);
 		return $this;
 	}
 	
@@ -102,7 +102,7 @@ class Order implements ParentSavableInterface
 		
 		$this->usePrimaryCreditCard();
 		
-		return $this->_dominos->placeOrder($this);
+		return $this->_pizzaboy->placeOrder($this);
 	}
 	
 	public function productQuantity()
@@ -204,7 +204,7 @@ class Order implements ParentSavableInterface
 	
 	public function usePrimaryCreditCard()
 	{
-		if($card = $this->_dominos->getPrimaryCreditCard($this->user())) {
+		if($card = $this->_pizzaboy->getPrimaryCreditCard($this->user())) {
 			$this->setPaymentOption($card);
 			return $this;	
 		}

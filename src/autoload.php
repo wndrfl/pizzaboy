@@ -9,7 +9,7 @@
  */
 spl_autoload_register(function ($className) {
     $className = ltrim($className, '\\');
-    if (0 != strpos($className, 'Dominos')) {
+    if (0 != strpos($className, 'Pizzaboy')) {
         return false;
     }
     $fileName = '';

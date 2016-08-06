@@ -578,7 +578,7 @@ class Pizzaboy
 		}else{
 			return true;
 		}
-		
+
 		if($response['SUCCESS']) {
 			$responseBody = json_decode($response['RESPONSE'],true);
 			return ($responseBody['Status'] == 1) ? true : false;

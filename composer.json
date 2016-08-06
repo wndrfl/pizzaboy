@@ -1,7 +1,6 @@
 {
     "name": "wndrfl/pizzaboy",
     "description": "An unofficial PHP wrapper for the Pizzaboy API",
-	"version": "0.0.5-stable",
     "authors": [
         {
             "name": "Johnnie Munger",
